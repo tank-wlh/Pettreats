@@ -19,14 +19,20 @@
 
     <nav class="nav" aria-label="主导航">
       <a href="#products">商品</a>
+      <a href="#petCategories">宠物分类</a>
       <a href="#promise">标准</a>
       <button type="button" data-open-hotlist>热销榜</button>
     </nav>
 
-    <button class="cart-pill" type="button" data-open-cart>
-      <span>购物车</span>
-      <strong id="cartCount">0</strong>
-    </button>
+    <div class="header-actions">
+      <button class="account-button" type="button" data-open-account>
+        <span id="accountLabel">登录</span>
+      </button>
+      <button class="cart-pill" type="button" data-open-cart>
+        <span>购物车</span>
+        <strong id="cartCount">0</strong>
+      </button>
+    </div>
   </header>
 
   <main id="top">
@@ -85,12 +91,26 @@
       </article>
     </section>
 
+    <section class="pet-categories" id="petCategories" aria-labelledby="petCategoryTitle">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Shop by pet</p>
+          <h2 id="petCategoryTitle">先选宠物，再挑食品</h2>
+        </div>
+        <p class="category-hint">选择宠物后，将只展示适合它的食品分类和商品。</p>
+      </div>
+      <div class="pet-category-list" id="petCategoryList" aria-label="宠物分类"></div>
+    </section>
+
     <section class="section-head" id="products">
       <div>
         <p class="eyebrow">Shop the collection</p>
         <h2>按喜好挑选今日零食</h2>
       </div>
-      <div class="filters" id="filters" aria-label="商品筛选"></div>
+      <div>
+        <p class="filter-label">食品分类</p>
+        <div class="filters" id="filters" aria-label="食品分类筛选"></div>
+      </div>
     </section>
 
     <section class="product-grid" id="productGrid" aria-live="polite"></section>
@@ -178,8 +198,84 @@
     </article>
   </section>
 
+  <section class="modal-shell" id="orderConfirmModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-order-confirm></div>
+    <article class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="confirmOrderTitle">
+      <button class="icon-button detail-close" type="button" data-close-order-confirm aria-label="关闭确认窗口">×</button>
+      <p class="eyebrow">Confirm delivery</p>
+      <h2 id="confirmOrderTitle">确认收货地址</h2>
+      <p class="confirm-copy">请确认本次订单使用以下地址收货。</p>
+      <div class="confirm-address">
+        <strong id="confirmRecipient"></strong>
+        <span id="confirmPhone"></span>
+        <p id="confirmDetail"></p>
+      </div>
+      <div class="confirm-actions">
+        <button class="button ghost" type="button" data-close-order-confirm>返回修改</button>
+        <button class="button primary" type="button" id="confirmOrderButton">确认下单</button>
+      </div>
+    </article>
+  </section>
+
+  <section class="modal-shell" id="authModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-auth></div>
+    <article class="auth-card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <button class="icon-button detail-close" type="button" data-close-auth aria-label="关闭账户窗口">×</button>
+      <div class="auth-intro">
+        <p class="eyebrow">Luma Paws account</p>
+        <h2 id="authTitle">把喜欢的零食，留在你的清单里。</h2>
+        <p>注册后即可保存购物车，并维护常用收货地址。</p>
+        <div class="auth-perks">
+          <span>✓ 游客可自由浏览</span>
+          <span>✓ 加入购物车需登录</span>
+          <span>✓ 地址随时可维护</span>
+        </div>
+      </div>
+      <div class="auth-content">
+        <div class="auth-tabs" role="tablist" aria-label="账户操作">
+          <button class="auth-tab active" type="button" data-auth-tab="login" role="tab">登录</button>
+          <button class="auth-tab" type="button" data-auth-tab="register" role="tab">注册</button>
+        </div>
+
+        <div id="authFormContainer"></div>
+
+      </div>
+    </article>
+  </section>
+
+  <section class="modal-shell" id="profileModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-profile></div>
+    <article class="profile-card" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+      <button class="icon-button detail-close" type="button" data-close-profile aria-label="关闭我的页面">×</button>
+      <div class="profile-header">
+        <p class="eyebrow">My account</p>
+        <h2 id="profileTitle">我的</h2>
+        <p>在这里维护账户和常用收货地址。</p>
+      </div>
+      <div class="account-summary">
+        <span class="account-avatar">LP</span>
+        <div>
+          <strong id="accountEmail"></strong>
+          <p>已登录账户</p>
+        </div>
+      </div>
+      <form class="auth-form" id="addressForm">
+        <div class="form-section-label">收货地址</div>
+        <div class="form-row">
+          <label>收件人<input type="text" name="recipient" autocomplete="name" required></label>
+          <label>手机号<input type="tel" name="phone" autocomplete="tel" required></label>
+        </div>
+        <label>详细地址<input type="text" name="detail" autocomplete="street-address" required></label>
+        <button class="button primary full" type="submit">保存地址</button>
+        <p class="form-message" id="addressMessage" role="alert"></p>
+      </form>
+      <button class="text-button" type="button" id="logoutButton">退出登录</button>
+    </article>
+  </section>
+
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
+  <script src="auth-store.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

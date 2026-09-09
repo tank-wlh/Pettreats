@@ -2,7 +2,8 @@ const products = [
   {
     id: "chicken-berry",
     name: "莓果鸡胸训练粒",
-    category: "鸡肉",
+    category: "鸡肉零食",
+    petTypes: ["dog", "cat", "general"],
     price: 39,
     monthlySales: 2550,
     spec: "80g / 袋",
@@ -15,7 +16,8 @@ const products = [
   {
     id: "freeze-salmon",
     name: "三文鱼冻干脆粒",
-    category: "冻干",
+    category: "冻干食品",
+    petTypes: ["dog", "cat", "general"],
     price: 56,
     monthlySales: 1820,
     spec: "60g / 罐",
@@ -28,7 +30,8 @@ const products = [
   {
     id: "dental-herb",
     name: "草本洁齿咀嚼棒",
-    category: "洁齿",
+    category: "洁齿食品",
+    petTypes: ["dog"],
     price: 42,
     monthlySales: 1360,
     spec: "7 支 / 盒",
@@ -42,6 +45,7 @@ const products = [
     id: "training-duck",
     name: "鸭肉南瓜奖励方",
     category: "训练奖励",
+    petTypes: ["dog"],
     price: 35,
     monthlySales: 2140,
     spec: "90g / 袋",
@@ -54,7 +58,8 @@ const products = [
   {
     id: "chicken-cheese",
     name: "鸡肉羊奶酪小方",
-    category: "鸡肉",
+    category: "鸡肉零食",
+    petTypes: ["dog"],
     price: 46,
     monthlySales: 980,
     spec: "75g / 盒",
@@ -67,7 +72,8 @@ const products = [
   {
     id: "freeze-beef",
     name: "牛肉冻干能量块",
-    category: "冻干",
+    category: "冻干食品",
+    petTypes: ["dog"],
     price: 62,
     monthlySales: 760,
     spec: "70g / 罐",
@@ -80,7 +86,8 @@ const products = [
   {
     id: "dental-pumpkin",
     name: "南瓜洁齿软棒",
-    category: "洁齿",
+    category: "洁齿食品",
+    petTypes: ["dog"],
     price: 38,
     monthlySales: 1180,
     spec: "10 支 / 袋",
@@ -94,6 +101,7 @@ const products = [
     id: "training-fish",
     name: "金枪鱼训练薄片",
     category: "训练奖励",
+    petTypes: ["cat", "general"],
     price: 49,
     monthlySales: 1570,
     spec: "65g / 袋",
@@ -105,15 +113,22 @@ const products = [
   }
 ];
 
-const categories = ["全部", "鸡肉", "冻干", "洁齿", "训练奖励"];
+const petCategories = [
+  { id: "all", label: "全部宠物", description: "浏览全部适用范围的食品" },
+  { id: "dog", label: "狗狗", description: "训练、洁齿与肉类零食" },
+  { id: "cat", label: "猫咪", description: "冻干、肉类与互动奖励" },
+  { id: "general", label: "犬猫通用", description: "一份零食，两种陪伴" }
+];
 const state = {
-  activeCategory: "全部",
+  activePet: "all",
+  activeCategory: "全部食品",
   selectedProductId: null,
   hotlistIds: [],
   cart: []
 };
 
 const filtersEl = document.querySelector("#filters");
+const petCategoryListEl = document.querySelector("#petCategoryList");
 const productGridEl = document.querySelector("#productGrid");
 const cartPanelEl = document.querySelector("#cartPanel");
 const cartItemsEl = document.querySelector("#cartItems");
@@ -125,9 +140,22 @@ const hotlistModalEl = document.querySelector("#hotlistModal");
 const hotlistItemsEl = document.querySelector("#hotlistItems");
 const hotlistSummaryEl = document.querySelector("#hotlistSummary");
 const successModalEl = document.querySelector("#successModal");
+const orderConfirmModalEl = document.querySelector("#orderConfirmModal");
+const authModalEl = document.querySelector("#authModal");
+const profileModalEl = document.querySelector("#profileModal");
 const toastEl = document.querySelector("#toast");
 const detailAddButton = document.querySelector("#detailAddButton");
+const accountLabelEl = document.querySelector("#accountLabel");
+const authFormContainer = document.querySelector("#authFormContainer");
+const addressForm = document.querySelector("#addressForm");
+const accountEmailEl = document.querySelector("#accountEmail");
+const logoutButton = document.querySelector("#logoutButton");
+const confirmOrderButton = document.querySelector("#confirmOrderButton");
+const confirmRecipientEl = document.querySelector("#confirmRecipient");
+const confirmPhoneEl = document.querySelector("#confirmPhone");
+const confirmDetailEl = document.querySelector("#confirmDetail");
 let toastTimer;
+let pendingProductId = null;
 
 function yuan(value) {
   return `¥${value}`;
@@ -155,6 +183,11 @@ function getCartTotal() {
 }
 
 function renderFilters() {
+  const visibleProducts = products.filter(product => {
+    return state.activePet === "all" || product.petTypes.includes(state.activePet);
+  });
+  const categories = ["全部食品", ...new Set(visibleProducts.map(product => product.category))];
+  if (!categories.includes(state.activeCategory)) state.activeCategory = "全部食品";
   filtersEl.innerHTML = categories.map(category => `
     <button
       class="filter-button ${category === state.activeCategory ? "active" : ""}"
@@ -164,9 +197,25 @@ function renderFilters() {
   `).join("");
 }
 
+function renderPetCategories() {
+  petCategoryListEl.innerHTML = petCategories.map(pet => `
+    <button
+      class="pet-category-card ${pet.id === state.activePet ? "active" : ""}"
+      type="button"
+      data-pet-category="${pet.id}"
+    >
+      <span class="pet-category-icon">${pet.id === "all" ? "✦" : pet.id === "dog" ? "犬" : pet.id === "cat" ? "猫" : "双"}</span>
+      <strong>${pet.label}</strong>
+      <small>${pet.description}</small>
+    </button>
+  `).join("");
+}
+
 function renderProducts() {
   const visibleProducts = products.filter(product => {
-    return state.activeCategory === "全部" || product.category === state.activeCategory;
+    const matchesPet = state.activePet === "all" || product.petTypes.includes(state.activePet);
+    const matchesCategory = state.activeCategory === "全部食品" || product.category === state.activeCategory;
+    return matchesPet && matchesCategory;
   });
 
   productGridEl.innerHTML = visibleProducts.map(product => `
@@ -237,6 +286,144 @@ function addToCart(id) {
     state.cart.push({ id, quantity: 1 });
   }
   renderCart();
+}
+
+function updateAccountUI() {
+  const user = PettreatsAuth.currentUser();
+  accountLabelEl.textContent = user ? "我的" : "登录";
+}
+
+function setAuthMessage(id, message = "") {
+  const messageEl = document.querySelector(`#${id}`);
+  if (messageEl) messageEl.textContent = message;
+}
+
+function renderAuthView(view = "login") {
+  document.querySelectorAll("[data-auth-tab]").forEach(tab => {
+    tab.classList.toggle("active", tab.dataset.authTab === view);
+  });
+  authFormContainer.innerHTML = view === "register" ? `
+      <form class="auth-form" id="registerForm">
+        <label>邮箱<input type="email" name="email" autocomplete="email" placeholder="name@example.com" required></label>
+        <label>密码<input type="password" name="password" autocomplete="new-password" placeholder="至少 6 位字符" minlength="6" required></label>
+        <div class="form-section-label">收货地址（可选，之后也能维护）</div>
+        <div class="form-row">
+          <label>收件人<input type="text" name="recipient" autocomplete="name" placeholder="怎么称呼你"></label>
+          <label>手机号<input type="tel" name="phone" autocomplete="tel" placeholder="联系电话"></label>
+        </div>
+        <label>详细地址<input type="text" name="detail" autocomplete="street-address" placeholder="省 / 市 / 区 / 街道门牌"></label>
+        <button class="button primary full" type="submit">注册并登录</button>
+        <p class="form-message" id="registerMessage" role="alert"></p>
+      </form>
+    ` : `
+      <form class="auth-form" id="loginForm">
+        <label>邮箱<input type="email" name="email" autocomplete="email" placeholder="name@example.com" required></label>
+        <label>密码<input type="password" name="password" autocomplete="current-password" placeholder="至少 6 位字符" required></label>
+        <button class="button primary full" type="submit">登录并继续</button>
+        <p class="form-message" id="loginMessage" role="alert"></p>
+      </form>
+    `;
+  bindAuthForm(view);
+  setAuthMessage("addressMessage");
+}
+
+function bindAuthForm(view) {
+  const form = document.querySelector(`#${view}Form`);
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    const data = new FormData(form);
+
+    if (view === "login") {
+      const result = PettreatsAuth.login(data.get("email"), data.get("password"));
+      if (!result.ok) {
+        setAuthMessage("loginMessage", "邮箱或密码不正确，请重试。");
+        return;
+      }
+      updateAccountUI();
+      closeAuth();
+      showToast("登录成功");
+      addProductAfterAuth();
+      return;
+    }
+
+    const hasAnyAddress = data.get("recipient") || data.get("phone") || data.get("detail");
+    const result = PettreatsAuth.register(data.get("email"), data.get("password"), hasAnyAddress ? {
+      recipient: data.get("recipient"),
+      phone: data.get("phone"),
+      detail: data.get("detail")
+    } : null);
+    if (!result.ok) {
+      const messages = {
+        INVALID_EMAIL: "请输入有效的邮箱地址。",
+        SHORT_PASSWORD: "密码至少需要 6 位字符。",
+        DUPLICATE: "这个邮箱已经注册过了，请直接登录。"
+      };
+      setAuthMessage("registerMessage", messages[result.code] || "注册失败，请稍后再试。");
+      return;
+    }
+    updateAccountUI();
+    closeAuth();
+    showToast("注册成功，已自动登录");
+    addProductAfterAuth();
+  });
+}
+
+function openAuth(view = PettreatsAuth.isLoggedIn() ? "account" : "login") {
+  renderAuthView(view);
+  setPanelOpen(authModalEl, true);
+}
+
+function closeAuth() {
+  setPanelOpen(authModalEl, false);
+}
+
+function openProfile() {
+  const user = PettreatsAuth.currentUser();
+  if (!user) {
+    openAuth("login");
+    return;
+  }
+  accountEmailEl.textContent = user.email;
+  addressForm.elements.recipient.value = user.address?.recipient || "";
+  addressForm.elements.phone.value = user.address?.phone || "";
+  addressForm.elements.detail.value = user.address?.detail || "";
+  setAuthMessage("addressMessage");
+  setPanelOpen(profileModalEl, true);
+}
+
+function closeProfile() {
+  setPanelOpen(profileModalEl, false);
+}
+
+function openOrderConfirmation() {
+  const address = PettreatsAuth.currentUser()?.address;
+  if (!address?.recipient || !address?.phone || !address?.detail) {
+    closeCart();
+    openProfile();
+    setAuthMessage("addressMessage", "请先维护完整收货地址，再回来模拟下单。");
+    return;
+  }
+
+  confirmRecipientEl.textContent = address.recipient;
+  confirmPhoneEl.textContent = address.phone;
+  confirmDetailEl.textContent = address.detail;
+  setPanelOpen(orderConfirmModalEl, true);
+}
+
+function requireLogin(productId, anchor) {
+  if (PettreatsAuth.isLoggedIn()) return true;
+  pendingProductId = productId;
+  showToast("请先登录，才能加入购物车", anchor);
+  openAuth("login");
+  return false;
+}
+
+function addProductAfterAuth() {
+  if (!pendingProductId) return;
+  const id = pendingProductId;
+  pendingProductId = null;
+  addToCart(id);
+  openCart();
 }
 
 function changeQuantity(id, delta) {
@@ -390,10 +577,22 @@ function bindEvents() {
     renderProducts();
   });
 
+  petCategoryListEl.addEventListener("click", event => {
+    const button = event.target.closest("[data-pet-category]");
+    if (!button) return;
+    state.activePet = button.dataset.petCategory;
+    state.activeCategory = "全部食品";
+    renderPetCategories();
+    renderFilters();
+    renderProducts();
+    document.querySelector("#products").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
   productGridEl.addEventListener("click", event => {
     const addButton = event.target.closest("[data-add]");
     const detailButton = event.target.closest("[data-detail]");
     if (addButton) {
+      if (!requireLogin(addButton.dataset.add, addButton)) return;
       addToCart(addButton.dataset.add);
       openCart();
     }
@@ -405,6 +604,7 @@ function bindEvents() {
   hotlistItemsEl.addEventListener("click", event => {
     const addButton = event.target.closest("[data-hot-add]");
     if (addButton) {
+      if (!requireLogin(addButton.dataset.hotAdd, addButton)) return;
       addToCart(addButton.dataset.hotAdd);
       showToast("加入购物车成功", addButton);
     }
@@ -445,23 +645,76 @@ function bindEvents() {
 
   detailAddButton.addEventListener("click", () => {
     if (!state.selectedProductId) return;
+    if (!requireLogin(state.selectedProductId, detailAddButton)) return;
     addToCart(state.selectedProductId);
     closeDetail();
     openCart();
   });
 
-  checkoutButton.addEventListener("click", checkout);
+  checkoutButton.addEventListener("click", openOrderConfirmation);
+
+  confirmOrderButton.addEventListener("click", () => {
+    if (state.cart.length === 0) return;
+    checkout();
+    setPanelOpen(orderConfirmModalEl, false);
+  });
+
+  document.querySelectorAll("[data-close-order-confirm]").forEach(button => {
+    button.addEventListener("click", () => setPanelOpen(orderConfirmModalEl, false));
+  });
+
+  document.querySelectorAll("[data-open-account]").forEach(button => {
+    button.addEventListener("click", () => {
+      if (PettreatsAuth.isLoggedIn()) openProfile();
+      else openAuth("login");
+    });
+  });
+
+  document.querySelectorAll("[data-close-auth]").forEach(button => {
+    button.addEventListener("click", closeAuth);
+  });
+
+  document.querySelectorAll("[data-close-profile]").forEach(button => {
+    button.addEventListener("click", closeProfile);
+  });
+
+  document.querySelectorAll("[data-auth-tab]").forEach(button => {
+    button.addEventListener("click", () => renderAuthView(button.dataset.authTab));
+  });
+
+  addressForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const data = new FormData(addressForm);
+    const result = PettreatsAuth.saveAddress({
+      recipient: data.get("recipient"),
+      phone: data.get("phone"),
+      detail: data.get("detail")
+    });
+    setAuthMessage("addressMessage", result.ok ? "收货地址已保存。" : "请完整填写收货人、手机号和详细地址。");
+  });
+
+  logoutButton.addEventListener("click", () => {
+    PettreatsAuth.logout();
+    updateAccountUI();
+    closeProfile();
+    showToast("已退出登录");
+  });
 
   document.addEventListener("keydown", event => {
     if (event.key !== "Escape") return;
     closeCart();
     closeHotlist();
     closeDetail();
+    closeAuth();
+    closeProfile();
+    setPanelOpen(orderConfirmModalEl, false);
     setPanelOpen(successModalEl, false);
   });
 }
 
 renderFilters();
+renderPetCategories();
 renderProducts();
 renderCart();
+updateAccountUI();
 bindEvents();
