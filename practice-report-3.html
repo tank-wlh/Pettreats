@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pettreats 实践报表 3</title>
+  <style>
+    :root {
+      --ink: #17221e;
+      --muted: #66736d;
+      --sage: #728d7a;
+      --deep: #304a3e;
+      --berry: #b85b6f;
+      --gold: #bd9340;
+      --paper: #fffdf8;
+      --line: rgba(23, 34, 30, .13);
+      --shadow: 0 18px 55px rgba(23, 34, 30, .09);
+      --display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      --body: "Avenir Next", "Gill Sans", "Microsoft YaHei", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(48, 74, 62, .035) 1px, transparent 1px),
+        linear-gradient(rgba(48, 74, 62, .035) 1px, transparent 1px),
+        linear-gradient(180deg, #fbf8f0, #eee8dc);
+      background-size: 64px 64px, 64px 64px, auto;
+      font: 16px/1.65 var(--body);
+    }
+    .shell { width: min(1160px, calc(100% - 34px)); margin: 0 auto; }
+    header {
+      padding: 28px 0 74px;
+      color: white;
+      background:
+        linear-gradient(110deg, rgba(23, 34, 30, .98), rgba(48, 74, 62, .93)),
+        url("assets/hero-treats.png") center / cover;
+    }
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 62px;
+      color: rgba(255,255,255,.72);
+      font-size: 13px;
+    }
+    .brand { color: white; font-weight: 800; letter-spacing: .04em; }
+    .brand-mark {
+      display: inline-grid;
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      place-items: center;
+      border-radius: 13px;
+      background: var(--berry);
+      font-family: var(--display);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 36px;
+      align-items: center;
+    }
+    .eyebrow {
+      margin: 0 0 14px;
+      color: #e8c7c9;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { font-family: var(--display); line-height: 1.05; }
+    h1 { max-width: 760px; margin: 0 0 22px; font-size: clamp(46px, 7vw, 88px); }
+    h2 { margin: 0 0 14px; font-size: clamp(34px, 4vw, 56px); }
+    h3 { margin: 0 0 12px; font-size: 27px; }
+    .lede { max-width: 720px; margin: 0; color: rgba(255,255,255,.76); font-size: 18px; }
+    .pills { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 26px; }
+    .pill {
+      padding: 7px 11px;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 999px;
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .hero-art { padding: 12px; border: 1px solid rgba(255,255,255,.18); border-radius: 28px; background: rgba(255,255,255,.09); box-shadow: var(--shadow); }
+    .hero-art img { width: 100%; height: 330px; border-radius: 20px; object-fit: cover; }
+    .hero-art figcaption { padding: 13px 5px 3px; color: rgba(255,255,255,.7); font-size: 12px; }
+    .summary {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: -32px;
+    }
+    .summary-card, .panel, .turn {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,253,248,.84);
+      box-shadow: 0 12px 35px rgba(23,34,30,.06);
+    }
+    .summary-card { padding: 20px; }
+    .summary-card strong { display: block; color: var(--deep); font: 35px var(--display); }
+    .summary-card span { color: var(--muted); font-size: 13px; }
+    section { padding-top: 70px; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 22px; }
+    .section-head .eyebrow { color: var(--berry); }
+    .section-head p:last-child { max-width: 480px; margin: 0; color: var(--muted); }
+    .turns { display: grid; gap: 16px; }
+    .turn {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 20px;
+      padding: 24px;
+    }
+    .turn-number { color: var(--berry); font: 32px var(--display); }
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--deep);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .quote, .output {
+      margin: 0 0 13px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      white-space: pre-line;
+    }
+    .quote { border-left: 3px solid var(--berry); background: rgba(184,91,111,.08); }
+    .output { border-left: 3px solid var(--sage); background: rgba(114,141,122,.1); color: var(--muted); }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .meta span {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(48,74,62,.08);
+      color: var(--deep);
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .panel { padding: 25px; }
+    .panel ul { margin: 0; padding-left: 21px; }
+    .panel li { margin: 7px 0; }
+    code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(48,74,62,.08);
+      color: var(--deep);
+      font: 12px Consolas, monospace;
+    }
+    .timeline { display: grid; gap: 16px; }
+    .timeline-item { display: grid; grid-template-columns: 92px 1fr; gap: 15px; }
+    .timeline-item time { color: var(--berry); font-size: 12px; font-weight: 900; }
+    .timeline-item strong { display: block; }
+    .timeline-item p { margin: 3px 0 0; color: var(--muted); font-size: 14px; }
+    .callout { padding: 26px; border-radius: 22px; background: var(--deep); color: white; box-shadow: var(--shadow); }
+    .callout h3 { margin-bottom: 10px; }
+    .callout p { margin: 0; color: rgba(255,255,255,.76); }
+    footer { padding: 24px 0 38px; margin-top: 70px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; text-align: center; }
+    @media (max-width: 900px) {
+      .hero-grid, .grid { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 22px, 1160px); }
+      .topline { align-items: start; flex-direction: column; margin-bottom: 40px; }
+      .summary { grid-template-columns: 1fr; }
+      .turn { grid-template-columns: 1fr; gap: 7px; padding: 18px; }
+      section { padding-top: 48px; }
+      .section-head { align-items: start; flex-direction: column; }
+      .timeline-item { grid-template-columns: 70px 1fr; gap: 10px; }
+    }
+    @media print {
+      body { background: white; }
+      header { color: black; background: white; }
+      .lede, .topline, .pill, header .eyebrow { color: #444; }
+      .hero-art { border-color: var(--line); background: white; box-shadow: none; }
+      .hero-art figcaption { color: #444; }
+      .summary-card, .panel, .turn, .callout { box-shadow: none; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell">
+      <div class="topline">
+        <div class="brand"><span class="brand-mark">P</span>Pettreats / 实践报表 3</div>
+        <span>整理日期：2026 年 9 月 9 日</span>
+      </div>
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Complete conversation archive</p>
+          <h1>从购物体验补齐，到可交付的功能闭环。</h1>
+          <p class="lede">本报告整理本会话全部用户输入，以及每轮对应的模型关键输出、代码变更、验证结果和仓库交付状态。</p>
+          <div class="pills">
+            <span class="pill">登录 / 注册</span>
+            <span class="pill">我的与收货地址</span>
+            <span class="pill">地址确认下单</span>
+            <span class="pill">宠物分类</span>
+            <span class="pill">GitHub 同步</span>
+          </div>
+        </div>
+        <figure class="hero-art">
+          <img src="assets/hero-treats.png" alt="Pettreats 宠物零食网站首屏视觉">
+          <figcaption>报告使用项目本地视觉资产，便于脱离远程依赖直接打开。</figcaption>
+        </figure>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div class="summary" aria-label="报告摘要">
+      <article class="summary-card"><strong>9</strong><span>完整用户输入节点</span></article>
+      <article class="summary-card"><strong>5</strong><span>核心功能主题</span></article>
+      <article class="summary-card"><strong>3</strong><span>主要源码文件迭代</span></article>
+      <article class="summary-card"><strong>1</strong><span>GitHub main 已同步</span></article>
+    </div>
+
+    <section>
+      <div class="section-head">
+        <div><p class="eyebrow">Prompt ledger</p><h2>用户提示词与模型关键输出</h2></div>
+        <p>以下按本会话实际发生顺序记录用户的完整需求意图，并提炼模型最关键的分析、实施和验证结果。</p>
+      </div>
+      <div class="turns">
+        <article class="turn">
+          <div class="turn-number">01</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">1. 新建登录用户注册页面，包括登录和注册功能，注册时用户需要提供邮箱和密码，并以此为登录账号。用户注册时还可以维护收货地址信息，以可以事后再维护地址信息。
+
+2. 用户可以以游客身份或注册用户身份进入该宠物零食售卖网站，但用户要添加物品到购物车时，需要用户先登录，如无登录账号请先注册。</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">梳理现有静态前端结构后，新增浏览器端认证存储层，使用 localStorage 保存用户、会话和地址；游客可以浏览和查看购物车，但所有加购入口统一拦截到登录/注册。注册后自动登录，并支持地址后续维护。</p>
+            <div class="meta"><span>认证功能</span><span>游客浏览</span><span>加购拦截</span><span>TDD</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">02</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">登录和注册两个按钮，点按钮切换到相应的表单</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">最初接入登录/注册选项卡，并验证按钮可以切换状态；随后根据进一步明确的页面要求，将实现收敛为单表单容器动态渲染，当前视图只生成登录表单或注册表单之一。</p>
+            <div class="meta"><span>表单切换</span><span>单表单渲染</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">03</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">登录和注册两个按钮，采用点击按钮后切换到相应的表单，不要全部放在一个页面上。</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">移除同时存在于 HTML 中的两套认证表单，新增 authFormContainer。点击登录时动态生成 loginForm，点击注册时动态生成 registerForm，从 DOM 层面确保两套表单不会同时存在。</p>
+            <div class="meta"><span>需求澄清</span><span>DOM 动态切换</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">04</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">LP已登录账户，不要放在登录页面，可以在登录后在“我的”信息维护页面维护信息</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">将登录/注册页限定为认证页面；删除其中的“LP 已登录账户”和地址表单。登录成功后顶部入口从“登录”变为“我的”，点击后打开独立 profileModal，在该页面维护邮箱展示、收货地址和退出登录。</p>
+            <div class="meta"><span>我的页面</span><span>信息维护</span><span>账户职责分离</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">05</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">选择食品加入购物车后，点击“模拟下单”时需要提示确认收货地址，如无可用地址，提示用户在“我的”页面维护地址信息。</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">将结算流程改为地址校验、地址确认、确认下单三步：有完整地址时展示确认收货地址弹窗；无地址时关闭购物车并打开“我的”页面，提示补全地址；只有点击“确认下单”后才清空购物车并显示成功弹窗。</p>
+            <div class="meta"><span>结算校验</span><span>地址确认</span><span>购物车状态保护</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">06</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">创建不同的宠物分类，并在宠物分类下进行食品分类，请先不要修改任何代码，先拆解需求确认你理解了我的需求。</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">先拆解为两级分类模型：一级为狗狗、猫咪、犬猫通用等宠物分类；二级为冻干、洁齿、训练奖励、肉类等食品分类。每个商品同时拥有适用宠物和食品分类，用户先选宠物再筛选食品。</p>
+            <div class="meta"><span>需求分析</span><span>等待确认</span><span>两级分类</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">07</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">你的理解完全正确，1-5问题全部按是处理</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">按确认范围实现：顶部新增“宠物分类”入口；增加全部宠物、狗狗、猫咪、犬猫通用；商品增加 petTypes 字段；食品分类随宠物联动；现有商品重新归类并支持双层筛选。</p>
+            <div class="meta"><span>需求确认</span><span>分类实现</span><span>联动筛选</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">08</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">将所有修改提交到如下仓库：https://github.com/tank-wlh/Pettreats.git</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">发现本地 origin 原来指向其他仓库后，将其切换到 tank-wlh/Pettreats.git；完成 node 语法检查和认证单测；提交功能代码为 9b7fa73，并成功推送到远程 main。既有未跟踪 practice-report 文件未纳入该次功能提交。</p>
+            <div class="meta"><span>远程切换</span><span>提交 9b7fa73</span><span>GitHub 推送</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">09</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">整理本会话所有的提示词以及相应的关键输出整理，并以html文档的形式生成实践报表3，报告需要有所有的对话过程，用户的所有输入和模型的关键输出。</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">读取已有实践报表结构，创建本文件 practice-report-3.html；按会话顺序收录用户输入、模型关键输出、代码行为、验证证据和最终仓库状态，并保留项目本地视觉资产作为报告封面视觉。</p>
+            <div class="meta"><span>实践报表 3</span><span>完整对话档案</span><span>HTML 交付物</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><p class="eyebrow">Key outputs</p><h2>关键实现结果</h2></div>
+        <p>将对话中的需求转换为实际文件、交互和验证结果。</p>
+      </div>
+      <div class="grid">
+        <article class="panel"><h3>账户与权限</h3><ul>
+          <li><code>auth-store.js</code> 提供注册、登录、退出、当前用户和地址保存。</li>
+          <li>邮箱作为登录账号，密码至少 6 位。</li>
+          <li>游客可以浏览商品，但加购前必须登录。</li>
+          <li>登录页和“我的”页面职责分离。</li>
+        </ul></article>
+        <article class="panel"><h3>地址与下单</h3><ul>
+          <li>注册时地址可选，登录后可在“我的”页面补充。</li>
+          <li>模拟下单前校验收货人、手机号和详细地址。</li>
+          <li>确认地址前不会清空购物车。</li>
+          <li>确认下单后才显示成功并清空购物车。</li>
+        </ul></article>
+        <article class="panel"><h3>分类与商品</h3><ul>
+          <li>一级分类：全部宠物、狗狗、猫咪、犬猫通用。</li>
+          <li>二级食品分类按当前宠物动态生成。</li>
+          <li>商品同时绑定 <code>petTypes</code> 和食品 <code>category</code>。</li>
+          <li>猫咪筛选不会显示仅适合狗狗的洁齿商品。</li>
+        </ul></article>
+        <article class="panel"><h3>工程与验证</h3><ul>
+          <li>修改文件：<code>index.html</code>、<code>script.js</code>、<code>styles.css</code>。</li>
+          <li>新增：<code>auth-store.js</code>、<code>tests/auth-store.test.js</code>。</li>
+          <li><code>node --check script.js</code> 和认证单测通过。</li>
+          <li>真实页面验证宠物分类联动，猫咪结果为 3 个商品。</li>
+        </ul></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><p class="eyebrow">Delivery timeline</p><h2>从需求到仓库</h2></div>
+        <p>本会话经历了需求确认、增量修改、测试、浏览器验收和 GitHub 推送。</p>
+      </div>
+      <article class="panel">
+        <div class="timeline">
+          <div class="timeline-item"><time>阶段 01</time><div><strong>建立认证基础</strong><p>新增认证存储层、登录注册表单和游客加购拦截。</p></div></div>
+          <div class="timeline-item"><time>阶段 02</time><div><strong>拆分账户页面</strong><p>根据反馈，将登录注册与登录后的“我的”信息维护页面分开。</p></div></div>
+          <div class="timeline-item"><time>阶段 03</time><div><strong>补齐地址结算</strong><p>在模拟下单前增加地址检查和收货地址确认弹窗。</p></div></div>
+          <div class="timeline-item"><time>阶段 04</time><div><strong>建立双层分类</strong><p>实现宠物分类与食品分类联动，并更新现有商品归属。</p></div></div>
+          <div class="timeline-item"><time>阶段 05</time><div><strong>提交并推送</strong><p>生成 9b7fa73 功能提交，推送至 tank-wlh/Pettreats.git 的 main 分支。</p></div></div>
+          <div class="timeline-item"><time>阶段 06</time><div><strong>生成实践报表 3</strong><p>将本会话全部用户输入和模型关键输出整理为当前 HTML 文档。</p></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section>
+      <div class="callout">
+        <h3>报告结论</h3>
+        <p>本会话完成了从登录注册、游客访问控制、账户信息维护、地址确认下单，到宠物与食品两级分类的连续迭代，并已将功能代码推送到目标 GitHub 仓库。当前认证和购物流程属于浏览器端演示实现，真实后端账号、密码安全、库存、订单和支付仍需后续接入。</p>
+      </div>
+    </section>
+
+    <footer>
+      Pettreats 实践报表 3 · 生成日期：2026-09-09 · 项目路径：<code>D:\Codex\gitproject\Pettreats</code> · 远程：<code>tank-wlh/Pettreats.git</code>
+    </footer>
+  </main>
+</body>
+</html>

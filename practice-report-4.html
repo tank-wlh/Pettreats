@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pettreats 实践报表 4</title>
+  <style>
+    :root {
+      --ink: #17221e;
+      --muted: #66736d;
+      --sage: #728d7a;
+      --deep: #304a3e;
+      --berry: #b85b6f;
+      --gold: #bd9340;
+      --paper: #fffdf8;
+      --cream: #fbf8f0;
+      --line: rgba(23,34,30,.13);
+      --shadow: 0 18px 55px rgba(23,34,30,.09);
+      --display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      --body: "Avenir Next", "Gill Sans", "Microsoft YaHei", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(48,74,62,.035) 1px, transparent 1px),
+        linear-gradient(rgba(48,74,62,.035) 1px, transparent 1px),
+        linear-gradient(180deg, var(--cream), #eee8dc);
+      background-size: 64px 64px, 64px 64px, auto;
+      font: 16px/1.65 var(--body);
+    }
+    .shell { width: min(1180px, calc(100% - 34px)); margin: 0 auto; }
+    header {
+      padding: 28px 0 78px;
+      color: white;
+      background:
+        linear-gradient(110deg, rgba(23,34,30,.98), rgba(48,74,62,.93)),
+        url("assets/hero-treats.png") center / cover;
+    }
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 64px;
+      color: rgba(255,255,255,.72);
+      font-size: 13px;
+    }
+    .brand { color: white; font-weight: 800; letter-spacing: .04em; }
+    .brand-mark {
+      display: inline-grid;
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      place-items: center;
+      border-radius: 13px;
+      background: var(--berry);
+      font-family: var(--display);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 36px;
+      align-items: center;
+    }
+    .eyebrow {
+      margin: 0 0 14px;
+      color: #e8c7c9;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { font-family: var(--display); line-height: 1.05; }
+    h1 { max-width: 780px; margin: 0 0 22px; font-size: clamp(46px, 7vw, 90px); }
+    h2 { margin: 0 0 14px; font-size: clamp(34px, 4vw, 56px); }
+    h3 { margin: 0 0 12px; font-size: 27px; }
+    .lede { max-width: 750px; margin: 0; color: rgba(255,255,255,.78); font-size: 18px; }
+    .pills { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 26px; }
+    .pill {
+      padding: 7px 11px;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 999px;
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .hero-art {
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 28px;
+      background: rgba(255,255,255,.09);
+      box-shadow: var(--shadow);
+    }
+    .hero-art img { width: 100%; height: 330px; border-radius: 20px; object-fit: cover; }
+    .hero-art figcaption { padding: 13px 5px 3px; color: rgba(255,255,255,.7); font-size: 12px; }
+    .summary {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: -32px;
+    }
+    .summary-card, .panel, .turn, .prompt-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,253,248,.86);
+      box-shadow: 0 12px 35px rgba(23,34,30,.06);
+    }
+    .summary-card { padding: 20px; }
+    .summary-card strong { display: block; color: var(--deep); font: 35px var(--display); }
+    .summary-card span { color: var(--muted); font-size: 13px; }
+    section { padding-top: 70px; }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 24px;
+      margin-bottom: 22px;
+    }
+    .section-head .eyebrow { color: var(--berry); }
+    .section-head p:last-child { max-width: 520px; margin: 0; color: var(--muted); }
+    .turns { display: grid; gap: 16px; }
+    .turn {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 20px;
+      padding: 24px;
+    }
+    .turn-number { color: var(--berry); font: 32px var(--display); }
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--deep);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .quote, .output, .evidence {
+      margin: 0 0 13px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      white-space: pre-line;
+    }
+    .quote { border-left: 3px solid var(--berry); background: rgba(184,91,111,.08); }
+    .output { border-left: 3px solid var(--sage); background: rgba(114,141,122,.1); color: var(--muted); }
+    .evidence { border-left: 3px solid var(--gold); background: rgba(189,147,64,.1); color: var(--muted); }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .meta span {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(48,74,62,.08);
+      color: var(--deep);
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .panel { padding: 25px; }
+    .panel ul { margin: 0; padding-left: 21px; }
+    .panel li { margin: 7px 0; }
+    .prompt-card { padding: 22px; }
+    .prompt-card + .prompt-card { margin-top: 12px; }
+    .prompt-card h3 { margin-bottom: 8px; font-size: 24px; }
+    .prompt-card p { margin: 0; color: var(--muted); }
+    code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(48,74,62,.08);
+      color: var(--deep);
+      font: 12px Consolas, monospace;
+    }
+    pre {
+      max-width: 100%;
+      overflow: auto;
+      margin: 12px 0 0;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #1c2924;
+      color: #e8f0e9;
+      font: 12px/1.65 Consolas, "Microsoft YaHei", monospace;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .timeline { display: grid; gap: 16px; }
+    .timeline-item { display: grid; grid-template-columns: 110px 1fr; gap: 15px; }
+    .timeline-item time { color: var(--berry); font-size: 12px; font-weight: 900; }
+    .timeline-item strong { display: block; }
+    .timeline-item p { margin: 3px 0 0; color: var(--muted); font-size: 14px; }
+    .callout { padding: 26px; border-radius: 22px; background: var(--deep); color: white; box-shadow: var(--shadow); }
+    .callout h3 { margin-bottom: 10px; }
+    .callout p { margin: 0; color: rgba(255,255,255,.78); }
+    footer {
+      padding: 24px 0 38px;
+      margin-top: 70px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+    @media (max-width: 900px) {
+      .hero-grid, .grid { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 22px, 1180px); }
+      .topline { align-items: start; flex-direction: column; margin-bottom: 40px; }
+      .summary { grid-template-columns: 1fr; }
+      .turn { grid-template-columns: 1fr; gap: 7px; padding: 18px; }
+      section { padding-top: 48px; }
+      .section-head { align-items: start; flex-direction: column; }
+      .timeline-item { grid-template-columns: 78px 1fr; gap: 10px; }
+    }
+    @media print {
+      body { background: white; }
+      header { color: black; background: white; }
+      .lede, .topline, .pill, header .eyebrow { color: #444; }
+      .hero-art { border-color: var(--line); background: white; box-shadow: none; }
+      .hero-art figcaption { color: #444; }
+      .summary-card, .panel, .turn, .prompt-card, .callout { box-shadow: none; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell">
+      <div class="topline">
+        <div class="brand"><span class="brand-mark">P</span>Pettreats / 实践报表 4</div>
+        <span>整理日期：2026 年 9 月 11 日</span>
+      </div>
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Complete conversation archive</p>
+          <h1>从功能说明，到可适配、可修复、可交付的宠物商城。</h1>
+          <p class="lede">本报告按会话顺序整理用户的全部输入、模型关键输出、实现文件、验证证据、Git 提交和推送状态，便于复盘整个实践过程。</p>
+          <div class="pills">
+            <span class="pill">功能需求说明书</span>
+            <span class="pill">移动端 H5</span>
+            <span class="pill">PC / 手机自适应</span>
+            <span class="pill">热销榜修复</span>
+            <span class="pill">GitHub 推送</span>
+          </div>
+        </div>
+        <figure class="hero-art">
+          <img src="assets/hero-treats.png" alt="Pettreats 宠物零食网站首屏视觉">
+          <figcaption>报告使用项目本地视觉资产，打开 HTML 时无需远程图片依赖。</figcaption>
+        </figure>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div class="summary" aria-label="报告摘要">
+      <article class="summary-card"><strong>6</strong><span>用户输入节点</span></article>
+      <article class="summary-card"><strong>4</strong><span>核心交付阶段</span></article>
+      <article class="summary-card"><strong>2</strong><span>Git 提交并推送</span></article>
+      <article class="summary-card"><strong>3</strong><span>自动化验证项</span></article>
+    </div>
+
+    <section>
+      <div class="section-head">
+        <div><p class="eyebrow">Session constraints</p><h2>会话级提示与工作约束</h2></div>
+        <p>首轮输入还包含项目上下文和执行约束，后续实现均以这些约束为前提。</p>
+      </div>
+      <div class="prompt-card">
+        <h3>项目与模型约束</h3>
+        <p>用户提供了项目路径、日期、时区及 AGENTS.md 指令，要求默认使用 ASCII 编辑文件；涉及图像生成时使用指定模型；与代码协作时需读取项目结构、保留用户已有改动、验证后再声明完成。</p>
+        <pre>工作区：D:\Codex\gitproject\Pettreats
+项目主题：宠物餐食 / 宠物零食购物网站
+当前日期：2026-09-11
+重点约束：读取代码库后实施；优先使用 rg；手动编辑使用 apply_patch；不要覆盖无关用户改动；完成前必须验证。</pre>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><p class="eyebrow">Prompt ledger</p><h2>所有用户输入与模型关键输出</h2></div>
+        <p>以下保留用户每个主要输入的原意，并记录紧接其后的关键分析、实现结果和验证状态。</p>
+      </div>
+      <div class="turns">
+        <article class="turn">
+          <div class="turn-number">01</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">总结该宠物购物网站的所有功能，形成功能需求说明书。</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">读取 index.html、script.js、auth-store.js、styles.css、测试文件和资源目录，梳理出游客浏览、宠物分类、食品分类、商品详情、热销榜、登录注册、收货地址、购物车和模拟下单等功能，并明确真实支付、库存、订单后台等尚未接入。</p>
+            <span class="label">交付物与证据</span>
+            <p class="evidence">生成《功能需求说明书》，覆盖角色权限、页面组成、功能需求、业务规则、数据存储、非功能需求、流程、验收标准和版本范围外能力。运行 <code>node --test tests/auth-store.test.js</code>，3 项测试全部通过。</p>
+            <div class="meta"><span>需求分析</span><span>功能盘点</span><span>验收标准</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">02</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">请基于该需求文档的所有功能，生成移动端H5页面。用户浏览该网站页面时，能自动根据用户是手机端还是PC端自适应访问H5页面还是PC端页面。</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">在现有单页商城上增加设备识别和移动端触控体验：根据视口宽度与 User Agent 设置 mobile / desktop 模式；增加移动端底部导航；优化窄屏商品、弹窗、购物车、登录和地址确认布局；保持 PC 端信息密度和原有业务逻辑。</p>
+            <span class="label">交付物与证据</span>
+            <p class="evidence">修改 <code>index.html</code>、<code>script.js</code>、<code>styles.css</code>，新增 <code>tests/responsive-check.py</code>。JavaScript 语法检查和账户测试通过。Playwright 脚本因环境缺少 Chromium 可执行文件未能启动，已如实记录该验证限制。</p>
+            <div class="meta"><span>移动 H5</span><span>响应式</span><span>设备识别</span><span>验证限制透明</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">03</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">提交代码至：[https://github.com/tank-wlh/Pettreats.git](https://github.com/tank-wlh/Pettreats.git)</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">核对远程地址为目标仓库，筛选本次相关文件，未提交已有的 practice-report*.html 和缓存目录。创建提交 <code>e82ebc9</code>，提交说明为 <code>feat: add responsive mobile H5 experience</code>，并成功推送到远程 main。</p>
+            <span class="label">交付物与证据</span>
+            <p class="evidence">远程验证结果：<code>e82ebc9 refs/heads/main</code>。本地保留无关未跟踪文件，不影响已提交功能。</p>
+            <div class="meta"><span>Git 提交</span><span>远程推送</span><span>文件边界</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">04</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">热销榜移动端页面错乱，请修改。其它内容正确不要修改。</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">先定位根因：移动端热销榜卡片继承了桌面级网格和间距，正文区域没有在移动网格中跨列，导致标题、描述、成分等文字被压缩进左侧窄列。只修改热销榜移动端 CSS，并新增对应回归检查。</p>
+            <span class="label">用户补充与最终修复</span>
+            <p class="quote">主要是文字排版错乱</p>
+            <p class="output">根据补充信息收敛修复范围，增加 <code>.hotlist-body { grid-column: 1 / -1; }</code>，同时保留热销榜移动端宽度、图片比例、字段换行和单列操作区规则。</p>
+            <span class="label">交付物与证据</span>
+            <p class="evidence">新增 <code>tests/hotlist-mobile-check.ps1</code>。检查输出为 <code>hotlist mobile checks passed</code>；账户测试 3/3 通过；JavaScript 语法检查通过。</p>
+            <div class="meta"><span>根因分析</span><span>最小修复</span><span>热销榜</span><span>文字排版</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">05</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">提交代码</p>
+            <span class="label">模型关键输出</span>
+            <p class="output">只暂存热销榜修复的 <code>styles.css</code> 和 <code>tests/hotlist-mobile-check.ps1</code>，创建本地提交 <code>ee644e1</code>，提交说明为 <code>fix: repair mobile hotlist typography</code>。</p>
+            <span class="label">推送过程</span>
+            <p class="evidence">首次推送因当前环境连接 GitHub 443 端口失败；没有把网络失败误报为成功。用户随后输入 <code>git push origin main</code>，重试成功，远程从 <code>e82ebc9</code> 更新到 <code>ee644e1</code>。</p>
+            <div class="meta"><span>修复提交</span><span>网络重试</span><span>远程同步</span></div>
+          </div>
+        </article>
+
+        <article class="turn">
+          <div class="turn-number">06</div>
+          <div>
+            <span class="label">用户输入</span>
+            <p class="quote">整理本会话所有的提示词以及相应的关键输出整理，并以html文档的形式生成实践报表4，报告需要有所有的对话过程，用户的所有输入和模型的关键输出。</p>
+            <span class="label">模型当前输出</span>
+            <p class="output">读取本地实践报表 3 作为视觉和结构参考，读取 rich-html-artifacts 制作规范，按时间顺序整理本会话的用户输入、模型关键输出、文件变更、验证证据和仓库状态，生成当前 <code>practice-report-4.html</code>。</p>
+            <div class="meta"><span>实践报表 4</span><span>完整会话档案</span><span>HTML 文档</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><p class="eyebrow">Key outputs</p><h2>关键交付结果</h2></div>
+        <p>将会话中的需求转化为可打开、可测试、可提交的项目成果。</p>
+      </div>
+      <div class="grid">
+        <article class="panel">
+          <h3>需求文档</h3>
+          <ul>
+            <li>生成 <code>功能需求说明书.md</code>。</li>
+            <li>记录游客、注册用户和未实现管理员角色。</li>
+            <li>覆盖商品、分类、热销榜、账户、地址、购物车和模拟下单。</li>
+            <li>明确真实支付、库存、订单和后台能力属于范围外。</li>
+          </ul>
+        </article>
+        <article class="panel">
+          <h3>响应式商城</h3>
+          <ul>
+            <li>手机端自动进入 H5 触控布局。</li>
+            <li>PC 端保留桌面导航和商品信息密度。</li>
+            <li>移动端增加底部快捷导航和购物车数量角标。</li>
+            <li>业务状态继续复用同一套前端逻辑。</li>
+          </ul>
+        </article>
+        <article class="panel">
+          <h3>热销榜修复</h3>
+          <ul>
+            <li>移动端榜单卡片增加窄屏宽度和间距约束。</li>
+            <li>正文区跨越完整网格宽度，避免文字压缩。</li>
+            <li>详情字段允许长文本换行。</li>
+            <li>加入购物车操作在移动端改为整行显示。</li>
+          </ul>
+        </article>
+        <article class="panel">
+          <h3>仓库交付</h3>
+          <ul>
+            <li><code>e82ebc9</code>：响应式移动 H5 体验。</li>
+            <li><code>ee644e1</code>：热销榜移动端文字排版修复。</li>
+            <li>两个提交均最终同步至 <code>origin/main</code>。</li>
+            <li>无关的 practice-report 文件未混入前两次功能提交。</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><p class="eyebrow">Verification ledger</p><h2>验证与限制</h2></div>
+        <p>报告区分已执行且通过的检查，以及因环境原因未能完成的浏览器视觉验证。</p>
+      </div>
+      <article class="panel">
+        <div class="timeline">
+          <div class="timeline-item"><time>通过</time><div><strong>账户存储单元测试</strong><p><code>node --test tests/auth-store.test.js</code>，注册、重复账户/错误凭证、地址持久化共 3 项通过。</p></div></div>
+          <div class="timeline-item"><time>通过</time><div><strong>JavaScript 语法检查</strong><p><code>node --check script.js</code> 和 <code>node --check auth-store.js</code> 无语法错误。</p></div></div>
+          <div class="timeline-item"><time>通过</time><div><strong>热销榜移动端回归检查</strong><p><code>powershell -NoProfile -ExecutionPolicy Bypass -File tests/hotlist-mobile-check.ps1</code> 输出 <code>hotlist mobile checks passed</code>。</p></div></div>
+          <div class="timeline-item"><time>限制</time><div><strong>Playwright 真实截图验证</strong><p>测试脚本已生成，但运行环境缺少 Chromium 可执行文件，无法完成真实视口截图；该限制在模型输出中已明确说明。</p></div></div>
+          <div class="timeline-item"><time>推送</time><div><strong>GitHub 远程同步</strong><p>热销榜修复首次推送因网络连接失败，用户重试 <code>git push origin main</code> 后成功同步。</p></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section>
+      <div class="callout">
+        <h3>报告结论</h3>
+        <p>本会话完成了从现有宠物商城功能盘点，到需求文档、移动端 H5 自适应、热销榜文字排版修复、自动化检查、Git 提交和 GitHub 推送的完整实践闭环。当前网站仍是纯前端演示商城，真实后端认证、密码安全、库存、订单、支付和管理员后台不属于本次交付范围。</p>
+      </div>
+    </section>
+
+    <footer>
+      Pettreats 实践报表 4 · 生成日期：2026-09-11 · 项目路径：<code>D:\Codex\gitproject\Pettreats</code> · 远程：<code>tank-wlh/Pettreats.git</code>
+    </footer>
+  </main>
+</body>
+</html>

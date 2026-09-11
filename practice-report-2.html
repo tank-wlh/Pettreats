@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pettreats 实践报表 2</title>
+  <style>
+    :root {
+      --ink: #17221e;
+      --muted: #66736d;
+      --sage: #728d7a;
+      --sage-deep: #304a3e;
+      --berry: #b85b6f;
+      --gold: #bd9340;
+      --cream: #fbf8f0;
+      --paper: #fffdf8;
+      --line: rgba(23, 34, 30, .13);
+      --shadow: 0 22px 60px rgba(23, 34, 30, .11);
+      --display: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      --body: "Avenir Next", "Gill Sans", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(48, 74, 62, .035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(48, 74, 62, .035) 1px, transparent 1px),
+        linear-gradient(180deg, #fbf8f0 0%, #f1ebdf 100%);
+      background-size: 64px 64px, 64px 64px, auto;
+      font-family: var(--body);
+      line-height: 1.65;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    .shell { width: min(1180px, calc(100% - 34px)); margin: 0 auto; }
+    .hero {
+      padding: 28px 0 76px;
+      color: white;
+      background:
+        linear-gradient(110deg, rgba(23, 34, 30, .98), rgba(48, 74, 62, .93)),
+        url("assets/hero-treats.png") center / cover;
+    }
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 62px;
+      color: rgba(255, 255, 255, .72);
+      font-size: 13px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: white;
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      background: var(--berry);
+      font-family: var(--display);
+      font-size: 17px;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 38px;
+      align-items: center;
+    }
+    .eyebrow {
+      margin: 0 0 14px;
+      color: var(--berry);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .hero .eyebrow { color: #e8c7c9; }
+    h1, h2, h3 {
+      margin-top: 0;
+      font-family: var(--display);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    h1 {
+      max-width: 720px;
+      margin-bottom: 22px;
+      font-size: clamp(46px, 7vw, 88px);
+    }
+    h2 { margin-bottom: 12px; font-size: clamp(34px, 4vw, 54px); }
+    h3 { margin-bottom: 10px; font-size: 27px; }
+    .hero-lede {
+      max-width: 690px;
+      margin: 0;
+      color: rgba(255, 255, 255, .76);
+      font-size: 18px;
+    }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+    }
+    .pill {
+      padding: 7px 11px;
+      border: 1px solid rgba(255, 255, 255, .22);
+      border-radius: 999px;
+      color: rgba(255, 255, 255, .86);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .hero-art {
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .09);
+      box-shadow: var(--shadow);
+    }
+    .hero-art img {
+      width: 100%;
+      height: 330px;
+      border-radius: 20px;
+      object-fit: cover;
+    }
+    .hero-art figcaption {
+      padding: 13px 5px 3px;
+      color: rgba(255, 255, 255, .72);
+      font-size: 12px;
+    }
+    .summary {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: -32px;
+    }
+    .summary-card,
+    .panel,
+    .prompt-card,
+    .output-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 253, 248, .83);
+      box-shadow: 0 12px 35px rgba(23, 34, 30, .06);
+    }
+    .summary-card { padding: 20px; }
+    .summary-card strong {
+      display: block;
+      color: var(--sage-deep);
+      font-family: var(--display);
+      font-size: 35px;
+    }
+    .summary-card span { color: var(--muted); font-size: 13px; }
+    .section { padding-top: 70px; }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 24px;
+      margin-bottom: 22px;
+    }
+    .section-head h2 { margin-bottom: 0; }
+    .section-head > p { max-width: 470px; margin: 0; color: var(--muted); }
+    .prompt-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .prompt-card { position: relative; padding: 25px; }
+    .prompt-number {
+      position: absolute;
+      top: 20px;
+      right: 23px;
+      color: var(--berry);
+      font-family: var(--display);
+      font-size: 31px;
+    }
+    .prompt-card h3 { padding-right: 45px; }
+    .prompt {
+      margin: 0 0 16px;
+      padding: 13px 15px;
+      border-left: 3px solid var(--sage);
+      background: rgba(114, 141, 122, .09);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .prompt-card ul { margin: 0; padding-left: 20px; }
+    .prompt-card li { margin: 7px 0; }
+    code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(48, 74, 62, .08);
+      color: var(--sage-deep);
+      font-family: Consolas, monospace;
+      font-size: 12px;
+    }
+    .output-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .output-card { padding: 24px; }
+    .output-card h3 { margin-bottom: 16px; }
+    .output-card ul { margin: 0; padding-left: 20px; }
+    .output-card li { margin: 7px 0; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 14px;
+      color: var(--sage-deep);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .status::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--sage);
+    }
+    .status.pending { color: var(--gold); }
+    .status.pending::before { background: var(--gold); }
+    .chart-panel { padding: 25px; }
+    .chart {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      align-items: end;
+      gap: 16px;
+      height: 260px;
+      padding: 20px 10px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .bar {
+      display: grid;
+      grid-template-rows: 1fr auto auto;
+      gap: 8px;
+      height: 100%;
+      text-align: center;
+    }
+    .bar-fill {
+      align-self: end;
+      width: 100%;
+      min-height: 24px;
+      border-radius: 12px 12px 3px 3px;
+      background: linear-gradient(180deg, var(--berry), #d8919e);
+    }
+    .bar:first-child .bar-fill { background: linear-gradient(180deg, var(--sage-deep), var(--sage)); }
+    .bar strong { color: var(--berry); font-size: 13px; }
+    .bar span { color: var(--muted); font-size: 12px; }
+    .timeline {
+      display: grid;
+      gap: 0;
+      border-left: 2px solid rgba(114, 141, 122, .35);
+    }
+    .timeline-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 116px 1fr;
+      gap: 18px;
+      padding: 0 0 22px 22px;
+    }
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -6px;
+      top: 4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--berry);
+    }
+    .timeline-item time { color: var(--berry); font-size: 12px; font-weight: 900; }
+    .timeline-item strong { display: block; margin-bottom: 3px; }
+    .timeline-item p { margin: 0; color: var(--muted); font-size: 14px; }
+    .table-wrap { overflow-x: auto; padding: 12px 20px 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 14px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--sage-deep); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+    td:first-child { width: 22%; color: var(--berry); font-weight: 800; }
+    .callout {
+      padding: 25px;
+      border-radius: 22px;
+      background: var(--sage-deep);
+      color: white;
+      box-shadow: var(--shadow);
+    }
+    .callout h3 { margin-bottom: 10px; }
+    .callout p { margin: 0; color: rgba(255, 255, 255, .78); }
+    .footer {
+      padding: 24px 0 36px;
+      margin-top: 70px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+    @media (max-width: 900px) {
+      .hero-grid, .output-grid { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 22px, 1180px); }
+      .topline { align-items: start; flex-direction: column; margin-bottom: 40px; }
+      .hero { padding-top: 20px; }
+      .hero-art img { height: 260px; }
+      .summary, .prompt-grid { grid-template-columns: 1fr; }
+      .section { padding-top: 48px; }
+      .section-head { align-items: start; flex-direction: column; }
+      .chart { gap: 9px; padding-inline: 0; }
+      .timeline-item { grid-template-columns: 78px 1fr; gap: 12px; }
+    }
+    @media print {
+      body { background: white; }
+      .hero { color: black; background: white; }
+      .hero .eyebrow, .hero-lede, .topline, .pill { color: #444; }
+      .hero-art { border-color: var(--line); background: white; box-shadow: none; }
+      .hero-art figcaption { color: #444; }
+      .summary-card, .panel, .prompt-card, .output-card, .callout { box-shadow: none; break-inside: avoid; }
+      .section { padding-top: 35px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="shell">
+      <div class="topline">
+        <a class="brand" href="#overview"><span class="brand-mark">P</span><span>Pettreats / 实践报表 2</span></a>
+        <span>整理日期：2026 年 9 月 9 日</span>
+      </div>
+      <div class="hero-grid" id="overview">
+        <div>
+          <p class="eyebrow">Conversation to shipped project</p>
+          <h1>把页面批注，变成一条可追踪的交付链路。</h1>
+          <p class="hero-lede">本报表整理本会话中用户提出的全部项目提示词，以及每次需求对应的关键输出、验证证据和工程结果，覆盖从页面细节修改到 GitHub 推送。</p>
+          <div class="hero-meta">
+            <span class="pill">页面批注驱动</span>
+            <span class="pill">热销榜交互</span>
+            <span class="pill">前端静态演示</span>
+            <span class="pill">GitHub 已推送</span>
+          </div>
+        </div>
+        <figure class="hero-art">
+          <img src="assets/hero-treats.png" alt="Pettreats 宠物零食网站使用的本地首屏视觉">
+          <figcaption>项目本地视觉资产：hero-treats.png · 代码与资源均位于 Pettreats 工程内</figcaption>
+        </figure>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="summary" aria-label="会话成果摘要">
+      <article class="summary-card"><strong>15</strong><span>用户输入节点</span></article>
+      <article class="summary-card"><strong>3</strong><span>核心前端文件持续迭代</span></article>
+      <article class="summary-card"><strong>3</strong><span>本地 Git 关键提交</span></article>
+      <article class="summary-card"><strong>1</strong><span>GitHub main 已同步</span></article>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><p class="eyebrow">Prompt ledger</p><h2>本会话提示词账本</h2></div>
+        <p>以下按会话顺序整理用户可见请求；每项后面紧跟对应的关键处理结果。系统级和开发者级隐含指令不纳入。</p>
+      </div>
+      <div class="prompt-grid">
+        <article class="prompt-card">
+          <span class="prompt-number">01</span>
+          <h3>了解 Codex 页面注释</h3>
+          <p class="prompt">提示词：询问“codex中怎么使用注释对页面进行修改”。</p>
+          <ul><li>说明打开内置浏览器、进入注释模式、选中页面元素并提交文字要求的基本流程。</li><li>强调提示词应包含位置、目标效果和限制条件。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">02</span>
+          <h3>根据页面批注补充销量</h3>
+          <p class="prompt">页面批注：在“莓果鸡胸训练粒”产品名下一行展示“月销+数量”，示例为“月销：2550”。</p>
+          <ul><li>在 <code>script.js</code> 的 8 个商品数据中增加 <code>monthlySales</code>。</li><li>在商品标题下渲染 <code>product-sales</code>，并新增对应样式。</li><li>第一款商品实际显示“月销：2550”。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">03</span>
+          <h3>确认提交状态与版本</h3>
+          <p class="prompt">提示词：检查截止当前的变更是否都提交，以及当前版本号。</p>
+          <ul><li>检查结果：当时尚无 Git commit，工作区存在新增和修改文件。</li><li>项目没有正式版本号配置，仅在页面文案中标注为前端演示。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">04</span>
+          <h3>建立初始版本</h3>
+          <p class="prompt">提示词：做一次 Git commit，形成初始版本。</p>
+          <ul><li>创建初始提交：<code>85963cc 初始版本提交</code>。</li><li>之后确认 <code>main</code> 分支工作区干净。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">05</span>
+          <h3>改造顶部导航为热销榜</h3>
+          <p class="prompt">提示词：将顶部“购物车”改为“热销榜”，点击后弹出新页面，展示按月销前 5 的商品详情并可加入购物车。</p>
+          <ul><li>新增热销榜弹层，按 <code>monthlySales</code> 降序取前 5。</li><li>榜单展示排名、图片、价格、月销、规格、适用宠物、适口性和成分。</li><li>支持榜单内直接加入购物车。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">06</span>
+          <h3>统一热销榜导航样式</h3>
+          <p class="prompt">提示词：顶部“热销榜”按钮风格与“商品、标准”一致，不需要突出显示。</p>
+          <ul><li>让导航链接和按钮共享尺寸、字体、圆角和悬停样式。</li><li>移除按钮默认边框和背景，恢复同级导航视觉。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">07</span>
+          <h3>简化热销榜加购反馈</h3>
+          <p class="prompt">提示词：热销榜卡片不需要“查看详情”；加入购物车后不打开购物车页面，直接加入并提示“加入购物车成功”。</p>
+          <ul><li>删除热销榜卡片中的“查看详情”按钮。</li><li>新增无障碍状态提示 toast，保留热销榜弹层打开。</li><li>购物车数量仍即时同步。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">08</span>
+          <h3>优化提示位置和标准锚点</h3>
+          <p class="prompt">提示词：成功提示就在点击按钮附近；点击“标准”后跳转内容显示不全。</p>
+          <ul><li>成功提示根据被点击按钮的屏幕坐标动态定位，优先显示在按钮上方。</li><li>为标准区域增加 <code>scroll-margin-top</code>，避免被 sticky 顶部导航遮挡。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">09</span>
+          <h3>提交所有代码</h3>
+          <p class="prompt">提示词：提交所有代码。</p>
+          <ul><li>创建提交：<code>952cd46 完善热销榜与交互体验</code>。</li><li>提交包含 <code>.gitignore</code>、<code>index.html</code>、<code>script.js</code> 和 <code>styles.css</code>。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">10</span>
+          <h3>推送到 GitHub</h3>
+          <p class="prompt">提示词：将所有代码推送到 <code>david353508290-jpg/Pettreats</code>。</p>
+          <ul><li>配置远程 <code>origin</code>。</li><li>首次因网络连接失败；再次推送时发现远程已有独立 <code>Initial commit</code>。</li><li>通过保留双方历史的合并方式完成同步。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">11</span>
+          <h3>重新提交并生成本报表</h3>
+          <p class="prompt">提示词：重新提交；整理本会话所有提示词及关键输出，以 HTML 文档生成实践报表 2。</p>
+          <ul><li>重新推送成功，远程与本地 <code>main</code> 指向同一提交。</li><li>本文件作为独立的“实践报表 2”交付物生成。</li></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><p class="eyebrow">Key outputs</p><h2>关键输出与结果</h2></div>
+        <p>把本会话中的自然语言需求，映射到实际文件、实际行为和实际 Git 结果。</p>
+      </div>
+      <div class="output-grid">
+        <article class="output-card">
+          <span class="status">页面功能已落地</span>
+          <h3>商品体验</h3>
+          <ul><li>商品数据集中维护，共 8 个示例商品。</li><li>商品卡片展示月销数据，首款为“月销：2550”。</li><li>保留商品筛选、详情弹窗、购物车数量调整和模拟下单。</li></ul>
+        </article>
+        <article class="output-card">
+          <span class="status">页面功能已落地</span>
+          <h3>热销榜体验</h3>
+          <ul><li>顶部导航的第三项为“热销榜”。</li><li>自动按月销降序取前 5：2550、2140、1820、1570、1360。</li><li>榜单内可直接加购，不关闭榜单、不打开购物车。</li></ul>
+        </article>
+        <article class="output-card">
+          <span class="status">页面功能已落地</span>
+          <h3>交互反馈</h3>
+          <ul><li>点击加购后显示“加入购物车成功”。</li><li>提示跟随点击按钮附近定位。</li><li>提示通过 <code>role="status"</code> 和 <code>aria-live="polite"</code> 支持辅助技术读取。</li></ul>
+        </article>
+        <article class="output-card">
+          <span class="status">页面功能已落地</span>
+          <h3>锚点与导航</h3>
+          <ul><li>“商品”和“标准”保留页面锚点导航。</li><li>标准区域增加顶部滚动留白，避免 sticky header 遮挡内容。</li><li>热销榜按钮与其他导航入口视觉统一。</li></ul>
+        </article>
+        <article class="output-card">
+          <span class="status">验证已执行</span>
+          <h3>验证证据</h3>
+          <ul><li><code>node --check script.js</code> 通过。</li><li>浏览器实际打开本地页面并点击“热销榜”。</li><li>确认榜单 5 项排序、加购后购物车数量变为 1、成功提示出现。</li><li>确认点击“标准”后 URL 进入 <code>#promise</code>。</li></ul>
+        </article>
+        <article class="output-card">
+          <span class="status">工程同步已完成</span>
+          <h3>GitHub 结果</h3>
+          <ul><li>远程：<code>https://github.com/david353508290-jpg/Pettreats.git</code>。</li><li>最新提交：<code>17ab09d Merge remote initial commit</code>。</li><li>本地 <code>HEAD</code> 与 <code>origin/main</code> SHA 一致。</li><li>工作区状态：干净。</li></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><p class="eyebrow">Full conversation</p><h2>完整对话过程</h2></div>
+        <p>下面按实际发生顺序记录用户输入和模型关键输出。浏览器自动注入的 ambient 状态不属于用户输入，因此未单独列入。</p>
+      </div>
+      <div class="prompt-grid">
+        <article class="prompt-card">
+          <span class="prompt-number">01</span>
+          <h3>会话约束与工作区</h3>
+          <p class="prompt"><strong>用户输入：</strong>提供 AGENTS.md 指令、图像生成模型约束、工作区路径和当前环境信息。</p>
+          <ul><li><strong>模型关键输出：</strong>识别项目目录为 <code>D:\Codex\gitproject\Pettreats</code>，后续按仓库协作、文件编辑、验证和提交规范执行。</li><li><strong>结果：</strong>建立本会话的工程上下文。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">02</span>
+          <h3>学习页面注释修改</h3>
+          <p class="prompt"><strong>用户输入：</strong>“codex中怎么使用注释对页面进行修改。”</p>
+          <ul><li><strong>模型关键输出：</strong>说明打开内置浏览器、开启 Annotation mode、选中元素、输入具体要求，再让 Codex 根据注释修改代码。</li><li><strong>结果：</strong>形成页面批注工作方法。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">03</span>
+          <h3>页面批注：新增月销</h3>
+          <p class="prompt"><strong>用户输入：</strong>页面批注选中“莓果鸡胸训练粒”，要求产品名下一行显示“月销：2550”。</p>
+          <ul><li><strong>模型关键输出：</strong>定位到 <code>script.js</code> 动态商品模板和商品数据，增加 <code>monthlySales</code> 字段及 <code>product-sales</code> 展示。</li><li><strong>结果：</strong>8 个商品均有销量字段；第一款显示“月销：2550”。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">04</span>
+          <h3>检查 Git 提交与版本</h3>
+          <p class="prompt"><strong>用户输入：</strong>“检查一下截止当前的变更都提交了嘛？当前的版本号是是什么”。</p>
+          <ul><li><strong>模型关键输出：</strong>检查出 <code>main</code> 尚无 commit，存在新增和修改文件；项目没有正式版本号配置。</li><li><strong>结果：</strong>明确当时属于未发布初始版本。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">05</span>
+          <h3>创建初始 Git 版本</h3>
+          <p class="prompt"><strong>用户输入：</strong>“能做一次git commit形成初始版本嘛”。</p>
+          <ul><li><strong>模型关键输出：</strong>核对工作区后创建“初始版本提交”。</li><li><strong>结果：</strong>初始提交形成，随后确认工作区干净。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">06</span>
+          <h3>确认顶部导航</h3>
+          <p class="prompt"><strong>用户输入：</strong>“页面的顶部中间是不是有商品、标准、购物车三个按钮”。</p>
+          <ul><li><strong>模型关键输出：</strong>读取 <code>index.html</code>，确认顶部中间有“商品”“标准”“购物车”三个入口，右侧另有购物车数量按钮。</li><li><strong>结果：</strong>完成页面结构确认。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">07</span>
+          <h3>改为热销榜</h3>
+          <p class="prompt"><strong>用户输入：</strong>将“购物车”导航按钮改为“热销榜”，点击后打开新页面，展示月销前 5 商品详情并可加入购物车。</p>
+          <ul><li><strong>模型关键输出：</strong>新增热销榜弹层、自动排序逻辑、前 5 商品详情和加购事件。</li><li><strong>结果：</strong>实测排序为 2550、2140、1820、1570、1360。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">08</span>
+          <h3>统一热销榜导航样式</h3>
+          <p class="prompt"><strong>用户输入：</strong>“最顶部的‘热销榜’按钮风格和商品、标准按钮风格保持一致，不需要突出显示”。</p>
+          <ul><li><strong>模型关键输出：</strong>让导航链接和按钮共享字体、间距、圆角、悬停状态，并清除按钮默认边框和背景。</li><li><strong>结果：</strong>三个导航入口成为同级视觉。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">09</span>
+          <h3>简化热销榜操作</h3>
+          <p class="prompt"><strong>用户输入：</strong>移除热销榜卡片的“查看详情”；加购后不弹购物车页面，直接加入并提示“加入购物车成功”。</p>
+          <ul><li><strong>模型关键输出：</strong>移除榜单详情按钮，新增 toast 成功提示，保留榜单弹层并同步购物车数量。</li><li><strong>结果：</strong>浏览器实测提示出现且购物车数量变为 1。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">10</span>
+          <h3>调整提示位置与标准跳转</h3>
+          <p class="prompt"><strong>用户输入：</strong>“加入购物车成功”提示就在点击按钮附近；点击“标准”后内容显示不全。</p>
+          <ul><li><strong>模型关键输出：</strong>按点击按钮坐标定位 toast，并给 <code>#promise</code> 增加 <code>scroll-margin-top</code>。</li><li><strong>结果：</strong>成功提示改为就地显示，标准区域预留 sticky header 高度。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">11</span>
+          <h3>提交所有代码</h3>
+          <p class="prompt"><strong>用户输入：</strong>“提交所有代码”。</p>
+          <ul><li><strong>模型关键输出：</strong>暂存并提交 <code>.gitignore</code>、<code>index.html</code>、<code>script.js</code> 和 <code>styles.css</code>。</li><li><strong>结果：</strong>生成提交 <code>952cd46 完善热销榜与交互体验</code>，工作区干净。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">12</span>
+          <h3>首次推送 GitHub</h3>
+          <p class="prompt"><strong>用户输入：</strong>将所有代码推送到 <code>https://github.com/david353508290-jpg/Pettreats.git</code>。</p>
+          <ul><li><strong>模型关键输出：</strong>配置 <code>origin</code> 后尝试推送。</li><li><strong>结果：</strong>第一次因连接 GitHub 失败，报告了网络错误和可重试命令。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">13</span>
+          <h3>重新提交远程仓库</h3>
+          <p class="prompt"><strong>用户输入：</strong>“重新提交”。</p>
+          <ul><li><strong>模型关键输出：</strong>发现远程已有独立的 <code>Initial commit</code>，先 fetch，再用 <code>--allow-unrelated-histories</code> 合并。</li><li><strong>结果：</strong>生成合并提交 <code>17ab09d</code>，成功推送到远程 <code>main</code>。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">14</span>
+          <h3>生成实践报表 2</h3>
+          <p class="prompt"><strong>用户输入：</strong>整理本会话所有提示词及关键输出，并以 HTML 文档生成“实践报表 2”。</p>
+          <ul><li><strong>模型关键输出：</strong>读取已有 <code>practice-report.html</code> 并保留，新增独立的 <code>practice-report-2.html</code>。</li><li><strong>结果：</strong>生成带封面、摘要卡、提示词账本、关键输出、柱状图、时间线和仓库快照的单文件报告。</li></ul>
+        </article>
+        <article class="prompt-card">
+          <span class="prompt-number">15</span>
+          <h3>补充完整对话过程</h3>
+          <p class="prompt"><strong>用户输入：</strong>“报告需要有所有的对话过程，用户的所有输入和模型的关键输出”。</p>
+          <ul><li><strong>模型关键输出：</strong>将报告扩展为完整会话记录，逐项列出用户输入、模型关键输出和实际结果。</li><li><strong>结果：</strong>本节成为实践报表 2 的完整对话附录。</li></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><p class="eyebrow">Hot list evidence</p><h2>热销榜排名图</h2></div>
+        <p>柱状图对应会话中实际验收时抓取到的前 5 商品月销数值。</p>
+      </div>
+      <article class="panel chart-panel">
+        <div class="chart" aria-label="热销商品月销数量柱状图">
+          <div class="bar"><div class="bar-fill" style="height:100%"></div><strong>2550</strong><span>莓果鸡胸</span></div>
+          <div class="bar"><div class="bar-fill" style="height:84%"></div><strong>2140</strong><span>鸭肉南瓜</span></div>
+          <div class="bar"><div class="bar-fill" style="height:71%"></div><strong>1820</strong><span>三文鱼冻干</span></div>
+          <div class="bar"><div class="bar-fill" style="height:62%"></div><strong>1570</strong><span>金枪鱼训练</span></div>
+          <div class="bar"><div class="bar-fill" style="height:53%"></div><strong>1360</strong><span>草本洁齿</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><p class="eyebrow">Delivery timeline</p><h2>从批注到推送</h2></div>
+        <p>本会话的实践路径不是一次性生成，而是连续的页面验收、修改、验证和交付。</p>
+      </div>
+      <article class="panel" style="padding:26px">
+        <div class="timeline">
+          <div class="timeline-item"><time>阶段 01</time><div><strong>读取页面批注</strong><p>定位商品标题节点，识别需求为新增月销展示。</p></div></div>
+          <div class="timeline-item"><time>阶段 02</time><div><strong>扩展商品模型</strong><p>补充 8 个商品的月销量字段，并渲染到商品卡片。</p></div></div>
+          <div class="timeline-item"><time>阶段 03</time><div><strong>建立热销榜</strong><p>把顶部购物车导航替换为热销榜入口，新增前 5 榜单弹层。</p></div></div>
+          <div class="timeline-item"><time>阶段 04</time><div><strong>连续打磨交互</strong><p>统一导航样式，移除榜单详情按钮，加入就地成功提示，修正锚点遮挡。</p></div></div>
+          <div class="timeline-item"><time>阶段 05</time><div><strong>提交与远程同步</strong><p>完成本地提交，合并远程 Initial commit，并推送到 GitHub main。</p></div></div>
+          <div class="timeline-item"><time>阶段 06</time><div><strong>形成实践报表 2</strong><p>将提示词、关键输出、验证证据和当前工程状态整理为本 HTML 文件。</p></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><p class="eyebrow">Repository snapshot</p><h2>当前工程快照</h2></div>
+        <p>以本会话结束时的仓库状态为准。</p>
+      </div>
+      <article class="panel table-wrap">
+        <table>
+          <thead><tr><th>项目</th><th>当前结果</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>分支</td><td><code>main</code></td><td>本地分支跟踪 <code>origin/main</code>。</td></tr>
+            <tr><td>最新提交</td><td><code>17ab09d</code></td><td>Merge remote initial commit，保留远程 README 和本地完整代码历史；本报告生成时该提交仍为最新代码提交。</td></tr>
+            <tr><td>远程仓库</td><td><code>david353508290-jpg/Pettreats</code></td><td>GitHub 远程已配置并成功推送。</td></tr>
+            <tr><td>源码结构</td><td><code>index.html</code> / <code>styles.css</code> / <code>script.js</code></td><td>静态前端三层结构，资源位于 <code>assets/</code>。</td></tr>
+            <tr><td>验证产物</td><td><code>.playwright-cli/</code></td><td>已加入 <code>.gitignore</code>，不进入仓库。</td></tr>
+            <tr><td>本报表</td><td><code>practice-report-2.html</code></td><td>本次生成的独立 HTML 实践报表，当前为新增未提交文件。</td></tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="callout">
+        <h3>实践结论</h3>
+        <p>本会话完成了从页面批注到可运行功能、从局部视觉调整到交互验收、从本地提交到 GitHub 同步的完整闭环。当前项目已经具备可继续迭代的静态前端基础；真实商品、库存、订单和支付仍属于后续业务接入范围。</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Pettreats 实践报表 2 · 生成日期：2026-09-09 · 项目路径：<code>D:\Codex\gitproject\Pettreats</code>
+    </footer>
+  </main>
+</body>
+</html>
