@@ -133,6 +133,7 @@ const productGridEl = document.querySelector("#productGrid");
 const cartPanelEl = document.querySelector("#cartPanel");
 const cartItemsEl = document.querySelector("#cartItems");
 const cartCountEl = document.querySelector("#cartCount");
+const mobileCartCountEl = document.querySelector("#mobileCartCount");
 const cartTotalEl = document.querySelector("#cartTotal");
 const checkoutButton = document.querySelector("#checkoutButton");
 const detailModalEl = document.querySelector("#detailModal");
@@ -156,6 +157,16 @@ const confirmPhoneEl = document.querySelector("#confirmPhone");
 const confirmDetailEl = document.querySelector("#confirmDetail");
 let toastTimer;
 let pendingProductId = null;
+
+function applyDeviceMode() {
+  const mobileByViewport = window.matchMedia("(max-width: 767px)").matches;
+  const mobileByAgent = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  const isMobile = mobileByViewport || mobileByAgent;
+
+  document.documentElement.dataset.device = isMobile ? "mobile" : "desktop";
+  document.body.classList.toggle("is-mobile-device", isMobile);
+  document.body.classList.toggle("is-desktop-device", !isMobile);
+}
 
 function yuan(value) {
   return `¥${value}`;
@@ -243,6 +254,7 @@ function renderCart() {
   const quantity = getCartQuantity();
 
   cartCountEl.textContent = quantity;
+  mobileCartCountEl.textContent = quantity;
   cartTotalEl.textContent = yuan(total);
   checkoutButton.disabled = state.cart.length === 0;
   checkoutButton.textContent = state.cart.length === 0 ? "购物车为空" : "模拟下单";
@@ -710,8 +722,27 @@ function bindEvents() {
     setPanelOpen(orderConfirmModalEl, false);
     setPanelOpen(successModalEl, false);
   });
+
+  document.querySelectorAll("[data-mobile-nav]").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll("[data-mobile-nav]").forEach(item => item.classList.remove("active"));
+      button.classList.add("active");
+    });
+  });
+
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener("click", () => {
+      const target = link.getAttribute("href");
+      if (!["#top", "#products", "#petCategories", "#promise"].includes(target)) return;
+      document.querySelectorAll("[data-mobile-nav]").forEach(item => item.classList.remove("active"));
+      const navKey = target === "#products" ? "products" : "home";
+      document.querySelector(`[data-mobile-nav="${navKey}"]`)?.classList.add("active");
+    });
+  });
 }
 
+applyDeviceMode();
+window.addEventListener("resize", applyDeviceMode, { passive: true });
 renderFilters();
 renderPetCategories();
 renderProducts();

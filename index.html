@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#fbf8f0">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Luma Paws 天然宠物零食</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2312211c'/%3E%3Ctext x='32' y='40' text-anchor='middle' font-size='24' font-family='serif' font-weight='700' fill='white'%3ELP%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
@@ -115,6 +117,30 @@
 
     <section class="product-grid" id="productGrid" aria-live="polite"></section>
   </main>
+
+  <nav class="mobile-bottom-nav" aria-label="移动端快捷导航">
+    <a class="mobile-nav-item active" href="#top" data-mobile-nav="home">
+      <span class="mobile-nav-icon" aria-hidden="true">⌂</span>
+      <span>首页</span>
+    </a>
+    <a class="mobile-nav-item" href="#products" data-mobile-nav="products">
+      <span class="mobile-nav-icon" aria-hidden="true">⌕</span>
+      <span>选零食</span>
+    </a>
+    <button class="mobile-nav-item" type="button" data-open-hotlist data-mobile-nav="hotlist">
+      <span class="mobile-nav-icon" aria-hidden="true">★</span>
+      <span>热销榜</span>
+    </button>
+    <button class="mobile-nav-item" type="button" data-open-account data-mobile-nav="account">
+      <span class="mobile-nav-icon" aria-hidden="true">◯</span>
+      <span>我的</span>
+    </button>
+    <button class="mobile-nav-item mobile-nav-cart" type="button" data-open-cart data-mobile-nav="cart">
+      <span class="mobile-nav-icon" aria-hidden="true">▱</span>
+      <span>购物车</span>
+      <strong id="mobileCartCount">0</strong>
+    </button>
+  </nav>
 
   <aside class="cart-panel" id="cartPanel" aria-hidden="true">
     <div class="cart-panel-backdrop" data-close-cart></div>
