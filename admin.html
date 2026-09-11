@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#17221e">
+  <title>管理后台 · Luma Paws</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-page">
+  <header class="admin-header">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">LP</span>
+      <span><strong>Luma Paws</strong><small>运营管理后台</small></span>
+    </a>
+    <div class="admin-header-actions">
+      <span class="demo-badge">公开演示</span>
+      <a class="button ghost" href="index.html">返回商城</a>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <section class="admin-intro">
+      <div>
+        <p class="eyebrow">Store intelligence</p>
+        <h1>把每一份奖励，<br>看得更清楚。</h1>
+        <p>虚拟演示订单与前台本地购买记录已合并。数据仅保存在当前浏览器中。</p>
+      </div>
+      <div class="admin-date" id="adminDate"></div>
+    </section>
+
+    <section class="metric-grid" id="metricGrid" aria-label="经营概览"></section>
+
+    <section class="admin-layout">
+      <article class="admin-panel chart-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Top movers</p><h2>商品销量排行</h2></div>
+          <span class="panel-note" id="statsNote"></span>
+        </div>
+        <div class="ranking-list" id="rankingList"></div>
+      </article>
+      <article class="admin-panel launch-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">New collection</p><h2>上架新品</h2></div>
+        </div>
+        <form id="productForm" class="admin-form">
+          <div class="admin-form-row">
+            <label>商品名称<input name="name" required placeholder="例如：鸡肉芝士小方"></label>
+            <label>商品图片
+              <div class="image-picker-row">
+                <input name="imageDisplay" value="assets/product-chicken-cheese.png" readonly aria-label="已选择的图片路径">
+                <label class="file-picker-button">浏览图片
+                  <input id="imageFilePicker" type="file" accept="image/*">
+                </label>
+              </div>
+              <img class="image-picker-preview" id="imagePickerPreview" src="assets/product-chicken-cheese.png" alt="已选择的商品图片">
+            </label>
+          </div>
+          <div class="admin-form-row">
+            <label>宠物分类<select name="petCategory"><option value="dog">狗狗</option><option value="cat">猫咪</option><option value="general">犬猫通用</option></select></label>
+            <label>食品分类<input name="foodCategory" required placeholder="例如：肉类零食"></label>
+          </div>
+          <div class="admin-form-row admin-form-row-3">
+            <label>价格<input name="price" type="number" min="0.01" step="0.01" required></label>
+            <label>规格<input name="spec" required placeholder="80g / 袋"></label>
+            <label>初始销量<input name="sales" type="number" min="0" step="1" value="0"></label>
+          </div>
+          <label>卖点<input name="sellingPoints" placeholder="高蛋白、低温烘焙"></label>
+          <label>成分<input name="ingredients" required placeholder="鸡胸肉、天然芝士"></label>
+          <label>适用文案<textarea name="suitableFor" rows="2" required placeholder="适合幼犬及成犬日常训练奖励"></textarea></label>
+          <label>标签<input name="tags" placeholder="新品、训练奖励"></label>
+          <button class="button primary full" type="submit">保存并同步到商城</button>
+          <p class="form-message" id="productMessage" role="status"></p>
+        </form>
+      </article>
+    </section>
+
+    <section class="admin-panel inventory-panel" id="inventorySection">
+      <div class="panel-heading">
+        <div><p class="eyebrow">Live catalog</p><h2>在售商品</h2></div>
+        <span class="panel-note">共 <b id="inventoryCount">0</b> 款</span>
+      </div>
+      <div class="inventory-grid" id="inventoryGrid"></div>
+    </section>
+
+    <section class="admin-panel table-panel" id="ordersSection">
+      <div class="panel-heading">
+        <div><p class="eyebrow">Order stream</p><h2>订单列表</h2></div>
+        <span class="panel-note">演示订单 + 本地真实订单</span>
+      </div>
+      <div class="table-scroll"><table><thead><tr><th>订单</th><th>客户</th><th>商品明细</th><th>金额</th><th>状态</th><th>时间</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
+    </section>
+
+    <section class="admin-panel table-panel" id="salesSection">
+      <div class="panel-heading">
+        <div><p class="eyebrow">Product detail</p><h2>商品销售明细</h2></div>
+      </div>
+      <div class="table-scroll"><table><thead><tr><th>商品</th><th>分类</th><th>商品销量</th><th>订单售出</th><th>销售额</th></tr></thead><tbody id="productsBody"></tbody></table></div>
+    </section>
+  </main>
+  <button class="admin-back-top" id="adminBackTop" type="button" aria-label="返回概览卡片" title="返回概览卡片">
+    <span aria-hidden="true">↑</span>
+  </button>
+  <div class="toast" id="adminToast" role="status" aria-live="polite"></div>
+  <script src="data-store.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

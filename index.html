@@ -24,6 +24,7 @@
       <a href="#petCategories">宠物分类</a>
       <a href="#promise">标准</a>
       <button type="button" data-open-hotlist>热销榜</button>
+      <a href="admin.html">管理后台</a>
     </nav>
 
     <div class="header-actions">
@@ -159,7 +160,7 @@
           <strong id="cartTotal">¥0</strong>
         </div>
         <button class="button primary full" type="button" id="checkoutButton">模拟下单</button>
-        <p class="cart-note">满 ¥99 免运费。当前版本为前端演示，不会产生真实订单。</p>
+      <p class="cart-note">满 ¥99 免运费。确认购买后会保存一条本地演示订单。</p>
       </footer>
     </section>
   </aside>
@@ -218,8 +219,8 @@
     <div class="modal-backdrop" data-close-success></div>
     <article class="success-card" role="dialog" aria-modal="true" aria-labelledby="successTitle">
       <p class="eyebrow">Order placed</p>
-      <h2 id="successTitle">模拟下单成功</h2>
-      <p>购物车已清空。真实支付、库存和订单后台会在后续版本接入。</p>
+      <h2 id="successTitle">购买成功</h2>
+      <p>订单已保存到本地演示后台，购物车也已清空。</p>
       <button class="button primary" type="button" data-close-success>继续逛逛</button>
     </article>
   </section>
@@ -302,6 +303,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <script src="auth-store.js"></script>
+  <script src="data-store.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

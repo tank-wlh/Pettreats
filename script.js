@@ -1,4 +1,4 @@
-const products = [
+const legacyProducts = [
   {
     id: "chicken-berry",
     name: "莓果鸡胸训练粒",
@@ -112,6 +112,7 @@ const products = [
     image: "assets/product-fish.png"
   }
 ];
+const products = PettreatsData.getAllProducts();
 
 const petCategories = [
   { id: "all", label: "全部宠物", description: "浏览全部适用范围的食品" },
@@ -574,6 +575,29 @@ function closeHotlist() {
 
 function checkout() {
   if (state.cart.length === 0) return;
+  const user = PettreatsAuth.currentUser();
+  const address = user?.address;
+  const items = state.cart.map(item => {
+    const product = getProduct(item.id);
+    return {
+      id: product.id,
+      name: product.name,
+      image: product.image,
+      price: product.price,
+      spec: product.spec,
+      quantity: item.quantity,
+      subtotal: product.price * item.quantity
+    };
+  });
+  PettreatsData.saveOrder({
+    id: PettreatsData.createOrderId(),
+    createdAt: new Date().toISOString(),
+    customer: { name: address.recipient, phone: address.phone, email: user.email },
+    address: { ...address, snapshot: `${address.recipient} · ${address.phone} · ${address.detail}` },
+    items,
+    total: items.reduce((sum, item) => sum + item.subtotal, 0),
+    status: "已完成"
+  });
   state.cart = [];
   renderCart();
   closeCart();
