@@ -1586,6 +1586,96 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .hotlist-card {
+    width: calc(100% - 20px);
+    max-height: calc(100vh - 28px);
+    margin: 14px auto;
+    padding: 20px 16px;
+    border-radius: 24px;
+  }
+
+  .hotlist-header {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .hotlist-header h2 {
+    font-size: 38px;
+  }
+
+  .hotlist-summary {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .hotlist-items {
+    gap: 12px;
+  }
+
+  .hotlist-item {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .hotlist-rank {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    font-size: 16px;
+  }
+
+  .hotlist-item img {
+    grid-column: 1 / -1;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    border-radius: 14px;
+  }
+
+  .hotlist-body {
+    grid-column: 1 / -1;
+  }
+
+  .hotlist-body h3 {
+    font-size: 20px;
+    line-height: 1.2;
+  }
+
+  .hotlist-meta {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .hotlist-body p {
+    margin-top: 8px;
+    font-size: 13px;
+  }
+
+  .hotlist-detail-list {
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .hotlist-detail-list div {
+    grid-template-columns: 46px minmax(0, 1fr);
+    gap: 8px;
+    padding-top: 7px;
+  }
+
+  .hotlist-detail-list dd {
+    overflow-wrap: anywhere;
+    font-size: 12px;
+  }
+
+  .hotlist-actions {
+    grid-template-columns: 1fr;
+    margin-top: 12px;
+  }
+
   .mobile-bottom-nav {
     position: fixed;
     right: 0;
